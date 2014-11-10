@@ -1,21 +1,10 @@
 import functools
-import tornado.gen
 from pytest_tornado.coroutine import fetch_coroutine
 
 
-def gen_test(func=None, timeout=None):
-    def wrap(f):
-
-        coro = tornado.gen.coroutine(f)
-
-        @functools.wraps(coro)
-        def post_coroutine(io_loop, *args, **kwargs):
-            return io_loop.run_sync(
-                functools.partial(coro, io_loop, *args, **kwargs))
-
-        return post_coroutine
-
-    return wrap(func)
+def _fetch(http_client, url):
+    return http_client.io_loop.run_sync(
+        functools.partial(http_client.fetch, url))
 
 
 def test_explicit_start_and_stop(io_loop):
@@ -31,7 +20,28 @@ def test_run_sync(io_loop):
     assert response == 200
 
 
-@gen_test
-def test_coroutines(io_loop):
-    response = yield fetch_coroutine('http://google.com')
-    assert response == 200
+def test_http_server(http_server):
+    status = {'done': False}
+
+    def _done():
+        status['done'] = True
+        http_server.io_loop.stop()
+
+    http_server.io_loop.add_callback(_done)
+    http_server.io_loop.start()
+
+    assert status['done']
+
+
+def test_http_client(http_client, root_url):
+    request = http_client.fetch(root_url)
+    request.add_done_callback(lambda future: http_client.io_loop.stop())
+    http_client.io_loop.start()
+
+    response = request.result()
+    assert response.code == 200
+
+
+def test_http_client_with_fetch_helper(http_client, root_url):
+    response = _fetch(http_client, root_url)
+    assert response.code == 200
