@@ -2,8 +2,8 @@ import pytest
 import tornado
 
 
-def pytest_runtest_call(item):
-    print 'yo called! %s' % item
+#def pytest_runtest_call(item):
+#    print 'yo called! %s' % item
 
 
 @pytest.fixture
