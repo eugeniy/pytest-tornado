@@ -2,10 +2,6 @@ import pytest
 import tornado
 
 
-#def pytest_runtest_call(item):
-#    print 'yo called! %s' % item
-
-
 @pytest.fixture
 def io_loop(request):
     io_loop = tornado.ioloop.IOLoop()
@@ -19,3 +15,8 @@ def io_loop(request):
 
     request.addfinalizer(_stop)
     return io_loop
+
+
+@pytest.fixture
+def http_server(request, io_loop):
+    pass
