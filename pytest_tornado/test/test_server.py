@@ -37,8 +37,8 @@ def test_http_server(http_server):
     assert status['done']
 
 
-def test_http_client(http_client, root_url):
-    request = http_client.fetch(root_url)
+def test_http_client(http_client, http_url):
+    request = http_client.fetch(http_url)
     request.add_done_callback(lambda future: http_client.io_loop.stop())
     http_client.io_loop.start()
 
@@ -46,6 +46,6 @@ def test_http_client(http_client, root_url):
     assert response.code == 200
 
 
-def test_http_client_with_fetch_helper(http_client, root_url):
-    response = _fetch(http_client, root_url)
+def test_http_client_with_fetch_helper(http_client, http_url):
+    response = _fetch(http_client, http_url)
     assert response.code == 200

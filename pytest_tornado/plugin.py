@@ -1,25 +1,8 @@
-import socket
 import pytest
 import tornado
+import tornado.testing
 import tornado.httpserver
 import tornado.httpclient
-
-
-@pytest.fixture
-def bound_socket():
-    [sock] = tornado.netutil.bind_sockets(
-        None, 'localhost', family=socket.AF_INET)
-    return sock
-
-
-@pytest.fixture
-def port(bound_socket):
-    return bound_socket.getsockname()[1]
-
-
-@pytest.fixture
-def root_url(port):
-    return 'http://localhost:%s' % port
 
 
 @pytest.fixture
@@ -38,9 +21,24 @@ def io_loop(request):
 
 
 @pytest.fixture
-def http_server(request, io_loop, bound_socket, app):
+def _unused_port():
+    return tornado.testing.bind_unused_port()
+
+
+@pytest.fixture
+def http_port(_unused_port):
+    return _unused_port[1]
+
+
+@pytest.fixture
+def http_url(http_port):
+    return 'http://localhost:%s' % http_port
+
+
+@pytest.fixture
+def http_server(request, io_loop, _unused_port, app):
     server = tornado.httpserver.HTTPServer(app, io_loop=io_loop)
-    server.add_socket(bound_socket)
+    server.add_socket(_unused_port[0])
 
     def _stop():
         server.stop()
