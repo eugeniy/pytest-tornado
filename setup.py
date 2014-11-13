@@ -6,6 +6,6 @@ setup(
     packages=find_packages(),
     install_requires=['pytest', 'tornado'],
     entry_points={
-        'pytest11': ['tornado = pytest_tornado.plugin']
+        'pytest11': ['tornado = pytest_tornado.plugin'],
     },
 )

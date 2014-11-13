@@ -4,13 +4,6 @@ import tornado
 import tornado.httpserver
 import tornado.httpclient
 
-from pytest_tornado.main import app as _app
-
-
-@pytest.fixture(scope='module')
-def app():
-    return _app
-
 
 @pytest.fixture
 def bound_socket():
