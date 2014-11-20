@@ -6,11 +6,17 @@ import tornado.httpserver
 import tornado.httpclient
 
 
-def get_async_test_timeout():
+def _get_async_test_timeout():
     try:
         return float(os.environ.get('ASYNC_TEST_TIMEOUT'))
     except (ValueError, TypeError):
         return 5
+
+
+def pytest_addoption(parser):
+    parser.addoption('--async-test-timeout', type='int',
+                     default=_get_async_test_timeout(),
+                     help='timeout in seconds before failing the test')
 
 
 @pytest.fixture
@@ -51,7 +57,7 @@ def http_server(request, io_loop, _unused_port, app):
     def _stop():
         server.stop()
         io_loop.run_sync(server.close_all_connections,
-                         timeout=get_async_test_timeout())
+                         timeout=request.config.option.async_test_timeout)
 
     request.addfinalizer(_stop)
     return server
