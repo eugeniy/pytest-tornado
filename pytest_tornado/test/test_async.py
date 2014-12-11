@@ -1,4 +1,5 @@
 import functools
+import pytest
 from tornado import gen
 
 
@@ -19,3 +20,9 @@ def test_run_sync(io_loop):
     dummy = functools.partial(dummy_coroutine, io_loop)
     finished = io_loop.run_sync(dummy)
     assert finished
+
+
+@pytest.gen_test
+def test_gen_test(io_loop):
+    result = yield dummy_coroutine(io_loop)
+    assert result

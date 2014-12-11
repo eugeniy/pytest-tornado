@@ -1,6 +1,8 @@
 import os
+import functools
 import pytest
 import tornado
+import tornado.gen
 import tornado.testing
 import tornado.httpserver
 import tornado.httpclient
@@ -13,10 +15,41 @@ def _get_async_test_timeout():
         return 5
 
 
+def _gen_test(func=None, timeout=None):
+    if timeout is None:
+        # TODO: this needs to use pytest's request config
+        timeout = _get_async_test_timeout()
+
+    def wrap(f):
+
+        coro = tornado.gen.coroutine(f)
+
+        @functools.wraps(coro)
+        def post_coroutine(io_loop, *args, **kwargs):
+            return io_loop.run_sync(
+                functools.partial(coro, io_loop, *args, **kwargs))
+
+        return post_coroutine
+
+    if func is not None:
+        # Used like:
+        #     @gen_test
+        #     def f(self):
+        #         pass
+        return wrap(func)
+    else:
+        # Used like @gen_test(timeout=10)
+        return wrap
+
+
 def pytest_addoption(parser):
     parser.addoption('--async-test-timeout', type='int',
                      default=_get_async_test_timeout(),
                      help='timeout in seconds before failing the test')
+
+
+def pytest_namespace():
+    return {'gen_test': _gen_test}
 
 
 @pytest.fixture
