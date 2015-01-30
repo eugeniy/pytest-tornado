@@ -1,4 +1,5 @@
 import os
+import inspect
 import functools
 import pytest
 import tornado
@@ -6,6 +7,8 @@ import tornado.gen
 import tornado.testing
 import tornado.httpserver
 import tornado.httpclient
+
+from decorator import decorator
 
 
 def _get_async_test_timeout():
@@ -15,30 +18,24 @@ def _get_async_test_timeout():
         return 5
 
 
-def _gen_test(func=None, timeout=None):
-    if timeout is None:
-        timeout = pytest.config.option.async_test_timeout
+@decorator
+def _gen_test(func, *args, **kwargs):
+    timeout = pytest.config.option.async_test_timeout
+    coroutine = tornado.gen.coroutine(func)
+    io_loop = None
 
-    def wrap(f):
-
-        coro = tornado.gen.coroutine(f)
-
-        @functools.wraps(coro)
-        def post_coroutine(io_loop, *args, **kwargs):
-            return io_loop.run_sync(
-                functools.partial(coro, io_loop, *args, **kwargs))
-
-        return post_coroutine
-
-    if func is not None:
-        # Used like:
-        #     @gen_test
-        #     def f(self):
-        #         pass
-        return wrap(func)
+    for index, arg in enumerate(inspect.getargspec(func)[0]):
+        if arg == 'io_loop':
+            io_loop = args[index]
+            break
+        elif arg in ['http_client', 'http_server']:
+            io_loop = args[index].io_loop
+            break
     else:
-        # Used like @gen_test(timeout=10)
-        return wrap
+        raise AttributeError('Cannot find a fixture with an io loop.')
+
+    return io_loop.run_sync(functools.partial(coroutine, *args, **kwargs),
+                            timeout=timeout)
 
 
 def pytest_addoption(parser):

@@ -49,3 +49,9 @@ def test_http_client(http_client, http_url):
 def test_http_client_with_fetch_helper(http_client, http_url):
     response = _fetch(http_client, http_url)
     assert response.code == 200
+
+
+@pytest.gen_test
+def test_http_client_with_gen_test(http_client, http_url):
+    response = yield http_client.fetch(http_url)
+    assert response.code == 200
