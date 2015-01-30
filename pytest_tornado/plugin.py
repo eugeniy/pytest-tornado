@@ -17,8 +17,7 @@ def _get_async_test_timeout():
 
 def _gen_test(func=None, timeout=None):
     if timeout is None:
-        # TODO: this needs to use pytest's request config
-        timeout = _get_async_test_timeout()
+        timeout = pytest.config.option.async_test_timeout
 
     def wrap(f):
 
