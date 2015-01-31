@@ -1,6 +1,13 @@
 import functools
 import pytest
 from tornado import gen
+from decorator import decorator
+
+
+@decorator
+def fail_if_passed(func, *args, **kwargs):
+    with pytest.raises(ZeroDivisionError):
+        func(*args, **kwargs)
 
 
 @gen.coroutine
@@ -24,5 +31,25 @@ def test_run_sync(io_loop):
 
 @pytest.gen_test
 def test_gen_test(io_loop):
+    result = yield dummy_coroutine(io_loop)
+    assert result
+
+
+@fail_if_passed
+@pytest.gen_test
+def test_gen_test_swallows_exceptions(io_loop):
+    1 / 0
+
+
+@fail_if_passed
+@pytest.gen_test
+def test_gen_test_yields_forever(io_loop):
+    yield dummy_coroutine(io_loop)
+    # pytest uses generators to collect tests, so it will never make it here
+    1 / 0
+
+
+@pytest.gen_test()
+def test_gen_test_callable(io_loop):
     result = yield dummy_coroutine(io_loop)
     assert result
