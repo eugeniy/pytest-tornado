@@ -18,24 +18,31 @@ def _get_async_test_timeout():
         return 5
 
 
-@decorator
-def _gen_test(func, *args, **kwargs):
-    timeout = pytest.config.option.async_test_timeout
-    coroutine = tornado.gen.coroutine(func)
-    io_loop = None
+def _gen_test(func=None, timeout=None):
 
-    for index, arg in enumerate(inspect.getargspec(func)[0]):
-        if arg == 'io_loop':
-            io_loop = args[index]
-            break
-        elif arg in ['http_client', 'http_server']:
-            io_loop = args[index].io_loop
-            break
+    @decorator
+    def _wrap(fn, *args, **kwargs):
+        timeout = pytest.config.option.async_test_timeout
+        coroutine = tornado.gen.coroutine(fn)
+        io_loop = None
+
+        for index, arg in enumerate(inspect.getargspec(fn)[0]):
+            if arg == 'io_loop':
+                io_loop = args[index]
+                break
+            elif arg in ['http_client', 'http_server']:
+                io_loop = args[index].io_loop
+                break
+        else:
+            raise AttributeError('Cannot find a fixture with an io loop.')
+
+        return io_loop.run_sync(functools.partial(coroutine, *args, **kwargs),
+                                timeout=timeout)
+
+    if func is not None:
+        return _wrap(func)
     else:
-        raise AttributeError('Cannot find a fixture with an io loop.')
-
-    return io_loop.run_sync(functools.partial(coroutine, *args, **kwargs),
-                            timeout=timeout)
+        return _wrap
 
 
 def pytest_addoption(parser):
