@@ -19,10 +19,11 @@ def _get_async_test_timeout():
 
 
 def _gen_test(func=None, timeout=None):
+    if timeout is None:
+        timeout = pytest.config.option.async_test_timeout
 
     @decorator
     def _wrap(fn, *args, **kwargs):
-        timeout = pytest.config.option.async_test_timeout
         coroutine = tornado.gen.coroutine(fn)
         io_loop = None
 
