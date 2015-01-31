@@ -37,6 +37,11 @@ def test_run_sync(io_loop):
 
 
 @pytest.gen_test
+def test_gen_test_sync(io_loop):
+    assert True
+
+
+@pytest.gen_test
 def test_gen_test(io_loop):
     result = yield dummy_coroutine(io_loop)
     assert result
