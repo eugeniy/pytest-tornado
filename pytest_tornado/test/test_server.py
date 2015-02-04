@@ -62,3 +62,9 @@ def test_http_client_with_gen_test(http_client, get_url):
 def test_get_url_with_path(http_client, get_url):
     response = yield http_client.fetch(get_url('/f00'))
     assert response.code == 200
+
+
+@pytest.gen_test
+def test_client_raises_on_404(http_client, get_url):
+    with pytest.raises(tornado.httpclient.HTTPError):
+        yield http_client.fetch(get_url('/bar'))
