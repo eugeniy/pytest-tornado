@@ -11,11 +11,12 @@ class MainHandler(tornado.web.RequestHandler):
 
 application = tornado.web.Application([
     (r'/', MainHandler),
+    (r'/f00', MainHandler),
 ])
 
 
 @pytest.fixture(scope='module')
-def http_app():
+def app():
     return application
 
 
@@ -37,8 +38,8 @@ def test_http_server(http_server):
     assert status['done']
 
 
-def test_http_client(http_client, http_url):
-    request = http_client.fetch(http_url)
+def test_http_client(http_client, get_url):
+    request = http_client.fetch(get_url('/'))
     request.add_done_callback(lambda future: http_client.io_loop.stop())
     http_client.io_loop.start()
 
@@ -46,12 +47,18 @@ def test_http_client(http_client, http_url):
     assert response.code == 200
 
 
-def test_http_client_with_fetch_helper(http_client, http_url):
-    response = _fetch(http_client, http_url)
+def test_http_client_with_fetch_helper(http_client, get_url):
+    response = _fetch(http_client, get_url('/'))
     assert response.code == 200
 
 
 @pytest.gen_test
-def test_http_client_with_gen_test(http_client, http_url):
-    response = yield http_client.fetch(http_url)
+def test_http_client_with_gen_test(http_client, get_url):
+    response = yield http_client.fetch(get_url('/'))
+    assert response.code == 200
+
+
+@pytest.gen_test
+def test_get_url_with_path(http_client, get_url):
+    response = yield http_client.fetch(get_url('/f00'))
     assert response.code == 200

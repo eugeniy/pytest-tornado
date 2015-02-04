@@ -50,7 +50,7 @@ def pytest_addoption(parser):
     parser.addoption('--async-test-timeout', type='int',
                      default=_get_async_test_timeout(),
                      help='timeout in seconds before failing the test')
-    parser.addoption('--app-fixture', default='http_app',
+    parser.addoption('--app-fixture', default='app',
                      help='fixture name returning a tornado application')
 
 
@@ -84,8 +84,8 @@ def http_port(_unused_port):
 
 
 @pytest.fixture
-def http_url(http_port):
-    return 'http://localhost:%s' % http_port
+def get_url(http_port):
+    return lambda path: 'http://localhost:%s%s' % (http_port, path)
 
 
 @pytest.fixture
