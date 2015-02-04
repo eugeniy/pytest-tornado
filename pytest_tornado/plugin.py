@@ -93,8 +93,10 @@ def http_server(request, io_loop, _unused_port, app):
 
     def _stop():
         server.stop()
-        io_loop.run_sync(server.close_all_connections,
-                         timeout=request.config.option.async_test_timeout)
+
+        if hasattr(server, 'close_all_connections'):
+            io_loop.run_sync(server.close_all_connections,
+                             timeout=request.config.option.async_test_timeout)
 
     request.addfinalizer(_stop)
     return server
