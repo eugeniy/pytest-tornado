@@ -2,9 +2,15 @@ language: python
 python:
     - 2.7
     - pypy
-    - 3.2
-    - 3.3
     - 3.4
-    - pypy3
-install: python setup.py install
+env:
+    - TORNADO_VERSION=4.0.2 PYTEST_VERSION=2.6.4
+    - TORNADO_VERSION=3.2.2 PYTEST_VERSION=2.6.4
+    - TORNADO_VERSION=4.0.2 PYTEST_VERSION=2.5.2
+    - TORNADO_VERSION=3.2.2 PYTEST_VERSION=2.5.2
+install:
+    - pip install -q tornado==$TORNADO_VERSION pytest==$PYTEST_VERSION
+    - python setup.py install
 script: py.test
+matrix:
+    fast_finish: true
