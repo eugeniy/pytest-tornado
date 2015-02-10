@@ -31,7 +31,7 @@ def _gen_test(func=None, timeout=None):
             if arg == 'io_loop':
                 io_loop = args[index]
                 break
-            elif arg in ['http_client', 'http_server']:
+            elif arg in ['async_client', 'http_server']:
                 io_loop = args[index].io_loop
                 break
         else:
@@ -47,7 +47,7 @@ def _gen_test(func=None, timeout=None):
 
 
 def pytest_addoption(parser):
-    parser.addoption('--async-test-timeout', type='int',
+    parser.addoption('--async-test-timeout', type=float,
                      default=_get_async_test_timeout(),
                      help='timeout in seconds before failing the test')
     parser.addoption('--app-fixture', default='app',
@@ -60,16 +60,18 @@ def pytest_namespace():
 
 @pytest.fixture
 def io_loop(request):
+    """Create an instance of the `tornado.ioloop.IOLoop` for each test case.
+    """
     io_loop = tornado.ioloop.IOLoop()
     io_loop.make_current()
 
-    def _stop():
+    def _close():
         io_loop.clear_current()
         if (not tornado.ioloop.IOLoop.initialized() or
                 io_loop is not tornado.ioloop.IOLoop.instance()):
             io_loop.close(all_fds=True)
 
-    request.addfinalizer(_stop)
+    request.addfinalizer(_close)
     return io_loop
 
 
@@ -80,12 +82,16 @@ def _unused_port():
 
 @pytest.fixture
 def http_port(_unused_port):
+    """Get a port used by the test server.
+    """
     return _unused_port[1]
 
 
 @pytest.fixture
-def get_url(http_port):
-    return lambda path: 'http://localhost:%s%s' % (http_port, path)
+def base_url(http_port):
+    """Create an absolute base url (scheme://host:port)
+    """
+    return 'http://localhost:%s' % http_port
 
 
 @pytest.fixture
@@ -110,13 +116,13 @@ def http_server(request, io_loop, _unused_port):
 
 
 @pytest.fixture
-def http_client(request, http_server):
+def async_client(request, http_server):
     client = tornado.httpclient.AsyncHTTPClient(io_loop=http_server.io_loop)
 
-    def _stop():
+    def _close():
         if (not tornado.ioloop.IOLoop.initialized() or
                 client.io_loop is not tornado.ioloop.IOLoop.instance()):
             client.close()
 
-    request.addfinalizer(_stop)
+    request.addfinalizer(_close)
     return client
