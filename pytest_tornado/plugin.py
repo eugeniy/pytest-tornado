@@ -8,7 +8,7 @@ import tornado.testing
 import tornado.httpserver
 import tornado.httpclient
 
-from inspect import isfunction, isgeneratorfunction
+from inspect import isgeneratorfunction
 from decorator import decorator
 
 
@@ -63,14 +63,16 @@ def pytest_pycollect_makeitem(collector, name, obj):
     if collector.funcnamefilter(name) and callable(obj):
         if isgeneratorfunction(obj):
             item = pytest.Function(name, parent=collector)
-            item.add_marker('oi')
+            if not 'gen_test' in item.keywords:
+                item.add_marker('gen_test')
             return item
 
 
-def pytest_runtest_call(item):
-    if item.get_marker('oi') is not None:
-        item.obj = _gen_test(item.obj)
-    item.runtest()
+def pytest_runtest_setup(item):
+    gen_test = item.get_marker('gen_test')
+    if gen_test is not None:
+        timeout = gen_test.kwargs.get('timeout')
+        item.obj = _gen_test(item.obj, timeout=timeout)
 
 
 @pytest.fixture

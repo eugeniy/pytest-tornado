@@ -77,3 +77,20 @@ def test_undecorated_generator(io_loop):
     with pytest.raises(ZeroDivisionError):
         yield gen.Task(io_loop.add_callback)
         1 / 0
+
+
+def test_generators_implicitly_gen_test_marked(request, io_loop):
+    yield gen.Task(io_loop.add_callback)
+    assert 'gen_test' in request.keywords
+
+
+@pytest.mark.gen_test
+def test_explicit_gen_test_marker(request, io_loop):
+    yield gen.Task(io_loop.add_callback)
+    assert 'gen_test' in request.keywords
+
+
+@pytest.mark.gen_test(timeout=0.5)
+def test_gen_test_marker_with_params(request, io_loop):
+    yield gen.Task(io_loop.add_callback)
+    assert request.keywords['gen_test'].kwargs['timeout'] == 0.5
