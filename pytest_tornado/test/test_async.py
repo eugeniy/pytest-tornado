@@ -71,3 +71,9 @@ def test_gen_test_callable(io_loop):
 @pytest.gen_test(timeout=0.1)
 def test_gen_test_with_timeout(io_loop):
     yield gen.Task(io_loop.add_timeout, io_loop.time() + 1)
+
+
+def test_undecorated_generator(io_loop):
+    with pytest.raises(ZeroDivisionError):
+        yield gen.Task(io_loop.add_callback)
+        1 / 0

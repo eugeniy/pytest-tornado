@@ -8,6 +8,7 @@ import tornado.testing
 import tornado.httpserver
 import tornado.httpclient
 
+from inspect import isfunction, isgeneratorfunction
 from decorator import decorator
 
 
@@ -56,6 +57,20 @@ def pytest_addoption(parser):
 
 def pytest_namespace():
     return {'gen_test': _gen_test}
+
+
+def pytest_pycollect_makeitem(collector, name, obj):
+    if collector.funcnamefilter(name) and callable(obj):
+        if isgeneratorfunction(obj):
+            item = pytest.Function(name, parent=collector)
+            item.add_marker('oi')
+            return item
+
+
+def pytest_runtest_call(item):
+    if item.get_marker('oi') is not None:
+        item.obj = _gen_test(item.obj)
+    item.runtest()
 
 
 @pytest.fixture
