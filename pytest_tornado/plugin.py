@@ -53,19 +53,17 @@ def pytest_addoption(parser):
                      help='timeout in seconds before failing the test')
     parser.addoption('--app-fixture', default='app',
                      help='fixture name returning a tornado application')
-
-
-def pytest_namespace():
-    return {'gen_test': _gen_test}
+    parser.addoption('--no-gen-test', dest='gen_test', action='store_false',
+                     help='disable implicit marking of generator test '
+                     'functions with the "gen_test" marker')
 
 
 def pytest_pycollect_makeitem(collector, name, obj):
-    if collector.funcnamefilter(name) and callable(obj):
-        if isgeneratorfunction(obj):
-            item = pytest.Function(name, parent=collector)
-            if not 'gen_test' in item.keywords:
-                item.add_marker('gen_test')
-            return item
+    if collector.funcnamefilter(name) and isgeneratorfunction(obj):
+        item = pytest.Function(name, parent=collector)
+        if pytest.config.option.gen_test and 'gen_test' not in item.keywords:
+            item.add_marker('gen_test')
+        return item
 
 
 def pytest_runtest_setup(item):
