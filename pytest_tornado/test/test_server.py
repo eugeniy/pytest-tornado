@@ -20,9 +20,9 @@ def app():
     return application
 
 
-def _fetch(async_client, url):
-    return async_client.io_loop.run_sync(
-        functools.partial(async_client.fetch, url))
+def _fetch(http_client, url):
+    return http_client.io_loop.run_sync(
+        functools.partial(http_client.fetch, url))
 
 
 def test_http_server(http_server):
@@ -38,33 +38,33 @@ def test_http_server(http_server):
     assert status['done']
 
 
-def test_async_client(async_client, base_url):
-    request = async_client.fetch(base_url)
-    request.add_done_callback(lambda future: async_client.io_loop.stop())
-    async_client.io_loop.start()
+def test_http_client(http_client, base_url):
+    request = http_client.fetch(base_url)
+    request.add_done_callback(lambda future: http_client.io_loop.stop())
+    http_client.io_loop.start()
 
     response = request.result()
     assert response.code == 200
 
 
-def test_async_client_with_fetch_helper(async_client, base_url):
-    response = _fetch(async_client, base_url)
+def test_http_client_with_fetch_helper(http_client, base_url):
+    response = _fetch(http_client, base_url)
     assert response.code == 200
 
 
 @pytest.gen_test
-def test_async_client_with_gen_test(async_client, base_url):
-    response = yield async_client.fetch(base_url)
+def test_http_client_with_gen_test(http_client, base_url):
+    response = yield http_client.fetch(base_url)
     assert response.code == 200
 
 
 @pytest.gen_test
-def test_get_url_with_path(async_client, base_url):
-    response = yield async_client.fetch('%s/f00' % base_url)
+def test_get_url_with_path(http_client, base_url):
+    response = yield http_client.fetch('%s/f00' % base_url)
     assert response.code == 200
 
 
 @pytest.gen_test
-def test_client_raises_on_404(async_client, base_url):
+def test_http_client_raises_on_404(http_client, base_url):
     with pytest.raises(tornado.httpclient.HTTPError):
-        yield async_client.fetch('%s/bar' % base_url)
+        yield http_client.fetch('%s/bar' % base_url)

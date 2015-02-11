@@ -31,7 +31,7 @@ def _gen_test(func=None, timeout=None):
             if arg == 'io_loop':
                 io_loop = args[index]
                 break
-            elif arg in ['async_client', 'http_server']:
+            elif arg in ['http_client', 'http_server']:
                 io_loop = args[index].io_loop
                 break
         else:
@@ -116,7 +116,7 @@ def http_server(request, io_loop, _unused_port):
 
 
 @pytest.fixture
-def async_client(request, http_server):
+def http_client(request, http_server):
     client = tornado.httpclient.AsyncHTTPClient(io_loop=http_server.io_loop)
 
     def _close():
