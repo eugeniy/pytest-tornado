@@ -67,3 +67,7 @@ def test_gen_test_marker_with_params(request, io_loop):
 @pytest.mark.gen_test(timeout=0.1)
 def test_gen_test_with_timeout(io_loop):
     yield gen.Task(io_loop.add_timeout, io_loop.time() + 1)
+
+
+def test_sync_tests_no_gen_test_marker(request):
+    assert 'gen_test' not in request.keywords

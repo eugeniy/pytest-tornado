@@ -8,43 +8,12 @@ import tornado.testing
 import tornado.httpserver
 import tornado.httpclient
 
-from inspect import isgeneratorfunction
-from decorator import decorator
-
 
 def _get_async_test_timeout():
     try:
         return float(os.environ.get('ASYNC_TEST_TIMEOUT'))
     except (ValueError, TypeError):
         return 5
-
-
-def _gen_test(func=None, timeout=None):
-    if timeout is None:
-        timeout = pytest.config.option.async_test_timeout
-
-    @decorator
-    def _wrap(fn, *args, **kwargs):
-        coroutine = tornado.gen.coroutine(fn)
-        io_loop = None
-
-        for index, arg in enumerate(inspect.getargspec(fn)[0]):
-            if arg == 'io_loop':
-                io_loop = args[index]
-                break
-            elif arg in ['http_client', 'http_server']:
-                io_loop = args[index].io_loop
-                break
-        else:
-            raise AttributeError('Cannot find a fixture with an io loop.')
-
-        return io_loop.run_sync(functools.partial(coroutine, *args, **kwargs),
-                                timeout=timeout)
-
-    if func is not None:
-        return _wrap(func)
-    else:
-        return _wrap
 
 
 def pytest_addoption(parser):
@@ -59,7 +28,7 @@ def pytest_addoption(parser):
 
 
 def pytest_pycollect_makeitem(collector, name, obj):
-    if collector.funcnamefilter(name) and isgeneratorfunction(obj):
+    if collector.funcnamefilter(name) and inspect.isgeneratorfunction(obj):
         item = pytest.Function(name, parent=collector)
         if pytest.config.option.gen_test and 'gen_test' not in item.keywords:
             item.add_marker('gen_test')
@@ -67,10 +36,35 @@ def pytest_pycollect_makeitem(collector, name, obj):
 
 
 def pytest_runtest_setup(item):
-    gen_test = item.get_marker('gen_test')
+    if 'gen_test' in item.keywords and 'io_loop' not in item.fixturenames:
+        item.fixturenames.append('io_loop')
+
+
+def _argnames(func):
+    spec = inspect.getargspec(func)
+    if spec.defaults:
+        return spec.args[:-len(spec.defaults)]
+    return spec.args
+
+
+def _runtest(func, io_loop, timeout, funcargs):
+    coroutine = tornado.gen.coroutine(func)
+    io_loop.run_sync(functools.partial(coroutine, **funcargs), timeout=timeout)
+
+
+@pytest.mark.tryfirst
+def pytest_pyfunc_call(pyfuncitem):
+    gen_test = pyfuncitem.get_marker('gen_test')
     if gen_test is not None:
-        timeout = gen_test.kwargs.get('timeout')
-        item.obj = _gen_test(item.obj, timeout=timeout)
+        io_loop = pyfuncitem.funcargs.get('io_loop')
+        timeout = gen_test.kwargs.get(
+            'timeout', pyfuncitem.config.option.async_test_timeout)
+        funcargs = dict((arg, pyfuncitem.funcargs[arg])
+                        for arg in _argnames(pyfuncitem.obj))
+        _runtest(pyfuncitem.obj, io_loop, timeout, funcargs)
+
+    # prevent other pyfunc calls from executing
+    return True
 
 
 @pytest.fixture
