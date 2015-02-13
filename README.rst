@@ -59,10 +59,10 @@ http_port
 
 base_url
     get an absolute base url for the test server,
-    for example, `http://localhost:59828`
+    for example, ``http://localhost:59828``
 
 http_server
-    start a tornado HTTP server, you must create an `app` fixture,
+    start a tornado HTTP server, you must create an ``app`` fixture,
     which returns the `tornado.web.Application`_ to be tested
 
 http_client
@@ -77,7 +77,7 @@ Show fixtures provided by the plugin::
 Markers
 -------
 
-A `gen_test` marker lets you write a coroutine-style tests used with the
+A ``gen_test`` marker lets you write a coroutine-style tests used with the
 `tornado.gen`_ module:
 
 .. code-block:: python
@@ -89,8 +89,8 @@ A `gen_test` marker lets you write a coroutine-style tests used with the
 
 
 Marked tests will time out after 5 seconds. The timeout can be modified by
-setting an `ASYNC_TEST_TIMEOUT` environment variable, `--async-test-timeout`
-command line argument or a marker argument.
+setting an ``ASYNC_TEST_TIMEOUT`` environment variable,
+``--async-test-timeout`` command line argument or a marker argument.
 
 .. code-block:: python
 
@@ -100,10 +100,10 @@ command line argument or a marker argument.
 
 
 By default, all generator tests are automatically marked and are executed
-using tornado's event loop created by the `io_loop` fixture. Implicit marking
-can be disabled with a `--no-gen-test` command line argument. It can also be
-disabled for individual tests by settings a `disabled=True` argument
-on the marker.
+using tornado's event loop created by the ``io_loop`` fixture. Implicit
+marking can be disabled with a ``--no-gen-test`` command line argument.
+It can also be disabled for individual tests by settings a ``disabled=True``
+argument on the marker.
 
 .. code-block:: python
 
