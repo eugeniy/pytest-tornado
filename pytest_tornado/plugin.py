@@ -128,6 +128,10 @@ def base_url(http_port):
 
 @pytest.fixture
 def http_server(request, io_loop, _unused_port):
+    """Start a tornado HTTP server.
+
+    You must create an `app` fixture, which returns the `tornado.web.Application` to be tested.
+    """
     try:
         http_app = request.getfuncargvalue(request.config.option.app_fixture)
     except Exception:
@@ -149,6 +153,8 @@ def http_server(request, io_loop, _unused_port):
 
 @pytest.fixture
 def http_client(request, http_server):
+    """Get an asynchronous HTTP client.
+    """
     client = tornado.httpclient.AsyncHTTPClient(io_loop=http_server.io_loop)
 
     def _close():
