@@ -27,6 +27,13 @@ def pytest_addoption(parser):
                      'functions with the "gen_test" marker')
 
 
+def pytest_configure(config):
+    config.addinivalue_line("markers",
+                            "gen_test(timeout=None, disabled=False): "
+                            "mark the test as asynchronous, it will be "
+                            "run using tornado's event loop")
+
+
 def _argnames(func):
     spec = inspect.getargspec(func)
     if spec.defaults:
