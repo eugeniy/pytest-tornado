@@ -27,19 +27,6 @@ def pytest_addoption(parser):
                      'functions with the "gen_test" marker')
 
 
-def pytest_pycollect_makeitem(collector, name, obj):
-    if collector.funcnamefilter(name) and inspect.isgeneratorfunction(obj):
-        item = pytest.Function(name, parent=collector)
-        if pytest.config.option.gen_test and 'gen_test' not in item.keywords:
-            item.add_marker('gen_test')
-        return item
-
-
-def pytest_runtest_setup(item):
-    if 'gen_test' in item.keywords and 'io_loop' not in item.fixturenames:
-        item.fixturenames.append('io_loop')
-
-
 def _argnames(func):
     spec = inspect.getargspec(func)
     if spec.defaults:
@@ -47,24 +34,53 @@ def _argnames(func):
     return spec.args
 
 
-def _runtest(func, io_loop, timeout, funcargs):
-    coroutine = tornado.gen.coroutine(func)
-    io_loop.run_sync(functools.partial(coroutine, **funcargs), timeout=timeout)
+def _is_async_test(item):
+    gen_test = item.get_marker('gen_test')
+    if gen_test and not gen_test.kwargs.get('disabled', False):
+        return True
+    return False
+
+
+def _timeout(item):
+    default_timeout = item.config.getoption('async_test_timeout')
+    gen_test = item.get_marker('gen_test')
+    if gen_test:
+        return gen_test.kwargs.get('timeout', default_timeout)
+    return default_timeout
+
+
+def pytest_pycollect_makeitem(collector, name, obj):
+    if collector.funcnamefilter(name) and inspect.isgeneratorfunction(obj):
+        item = pytest.Function(name, parent=collector)
+
+        if pytest.config.option.gen_test and 'gen_test' not in item.keywords:
+            item.add_marker('gen_test')
+
+        # convert to a test function unless explicitly disabled
+        if _is_async_test(item):
+            return item
+
+
+def pytest_runtest_setup(item):
+    if _is_async_test(item) and 'io_loop' not in item.fixturenames:
+        # inject an event loop fixture for all async tests
+        item.fixturenames.append('io_loop')
 
 
 @pytest.mark.tryfirst
 def pytest_pyfunc_call(pyfuncitem):
-    gen_test = pyfuncitem.get_marker('gen_test')
-    if gen_test is not None:
+    if _is_async_test(pyfuncitem):
         io_loop = pyfuncitem.funcargs.get('io_loop')
-        timeout = gen_test.kwargs.get(
-            'timeout', pyfuncitem.config.option.async_test_timeout)
+
         funcargs = dict((arg, pyfuncitem.funcargs[arg])
                         for arg in _argnames(pyfuncitem.obj))
-        _runtest(pyfuncitem.obj, io_loop, timeout, funcargs)
 
-    # prevent other pyfunc calls from executing
-    return True
+        coroutine = tornado.gen.coroutine(pyfuncitem.obj)
+        io_loop.run_sync(functools.partial(coroutine, **funcargs),
+                         timeout=_timeout(pyfuncitem))
+
+        # prevent other pyfunc calls from executing
+        return True
 
 
 @pytest.fixture

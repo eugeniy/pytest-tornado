@@ -71,3 +71,12 @@ def test_gen_test_with_timeout(io_loop):
 
 def test_sync_tests_no_gen_test_marker(request):
     assert 'gen_test' not in request.keywords
+
+
+@pytest.mark.gen_test(disabled=True)
+def test_generators_with_disabled_gen_test_marker():
+    def _dummy(a, b):
+        assert a*3 == b
+
+    for i in range(3):
+        yield _dummy, i, i*3
