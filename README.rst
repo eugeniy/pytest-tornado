@@ -35,6 +35,7 @@ Example
     def app():
         return application
 
+    @pytest.mark.gen_test
     def test_hello_world(http_client, base_url):
         response = yield http_client.fetch(base_url)
         assert response.code == 200
@@ -97,27 +98,6 @@ setting an ``ASYNC_TEST_TIMEOUT`` environment variable,
     @pytest.mark.gen_test(timeout=5)
     def test_tornado(http_client):
         yield http_client.fetch('http://www.tornadoweb.org/')
-
-
-By default, all generator tests are automatically marked and are executed
-using tornado's event loop created by the ``io_loop`` fixture. Implicit
-marking can be disabled with a ``--no-gen-test`` command line argument.
-It can also be disabled for individual tests by settings a ``disabled=True``
-argument on the marker.
-
-.. code-block:: python
-
-    # equivalent to the test above
-    def test_tornado(http_client):
-        response = yield http_client.fetch('http://www.tornadoweb.org/')
-        assert response.code == 200
-
-    # disable asynchronous testing, in py.test generators are used to
-    # collect additional tests
-    @pytest.mark.gen_test(disabled=True)
-    def test_default_behavior():
-        yield _test_one
-        yield _test_two
 
 
 Show markers provided by the plugin::

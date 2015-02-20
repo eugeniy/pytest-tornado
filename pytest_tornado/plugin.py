@@ -22,14 +22,11 @@ def pytest_addoption(parser):
                      help='timeout in seconds before failing the test')
     parser.addoption('--app-fixture', default='app',
                      help='fixture name returning a tornado application')
-    parser.addoption('--no-gen-test', dest='gen_test', action='store_false',
-                     help='disable implicit marking of generator test '
-                     'functions with the "gen_test" marker')
 
 
 def pytest_configure(config):
     config.addinivalue_line("markers",
-                            "gen_test(timeout=None, disabled=False): "
+                            "gen_test(timeout=None): "
                             "mark the test as asynchronous, it will be "
                             "run using tornado's event loop")
 
@@ -41,13 +38,6 @@ def _argnames(func):
     return spec.args
 
 
-def _is_async_test(item):
-    gen_test = item.get_marker('gen_test')
-    if gen_test and not gen_test.kwargs.get('disabled', False):
-        return True
-    return False
-
-
 def _timeout(item):
     default_timeout = item.config.getoption('async_test_timeout')
     gen_test = item.get_marker('gen_test')
@@ -56,27 +46,23 @@ def _timeout(item):
     return default_timeout
 
 
+@pytest.mark.tryfirst
 def pytest_pycollect_makeitem(collector, name, obj):
     if collector.funcnamefilter(name) and inspect.isgeneratorfunction(obj):
         item = pytest.Function(name, parent=collector)
-
-        if pytest.config.option.gen_test and 'gen_test' not in item.keywords:
-            item.add_marker('gen_test')
-
-        # convert to a test function unless explicitly disabled
-        if _is_async_test(item):
-            return item
+        if 'gen_test' in item.keywords:
+            return list(collector._genfunctions(name, obj))
 
 
 def pytest_runtest_setup(item):
-    if _is_async_test(item) and 'io_loop' not in item.fixturenames:
+    if 'gen_test' in item.keywords and 'io_loop' not in item.fixturenames:
         # inject an event loop fixture for all async tests
         item.fixturenames.append('io_loop')
 
 
 @pytest.mark.tryfirst
 def pytest_pyfunc_call(pyfuncitem):
-    if _is_async_test(pyfuncitem):
+    if 'gen_test' in pyfuncitem.keywords:
         io_loop = pyfuncitem.funcargs.get('io_loop')
 
         funcargs = dict((arg, pyfuncitem.funcargs[arg])

@@ -40,15 +40,11 @@ def test_gen_test_swallows_exceptions(io_loop):
         1 / 0
 
 
-def test_undecorated_generator(io_loop):
+@pytest.mark.gen_test
+def test_generator_raises(io_loop):
     with pytest.raises(ZeroDivisionError):
         yield gen.Task(io_loop.add_callback)
         1 / 0
-
-
-def test_generators_implicitly_gen_test_marked(request, io_loop):
-    yield gen.Task(io_loop.add_callback)
-    assert 'gen_test' in request.keywords
 
 
 @pytest.mark.gen_test
@@ -73,7 +69,6 @@ def test_sync_tests_no_gen_test_marker(request):
     assert 'gen_test' not in request.keywords
 
 
-@pytest.mark.gen_test(disabled=True)
 def test_generators_with_disabled_gen_test_marker():
     def _dummy(a, b):
         assert a*3 == b
