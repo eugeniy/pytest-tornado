@@ -5,9 +5,11 @@ python:
 env:
     - TORNADO_VERSION=4.1 PYTEST_VERSION=2.6.4
     - TORNADO_VERSION=3.2.2 PYTEST_VERSION=2.6.4
-    - TORNADO_VERSION=4.1 PYTEST_VERSION=2.5.2
-    - TORNADO_VERSION=3.2.2 PYTEST_VERSION=2.5.2
 install:
     - pip install -q tornado==$TORNADO_VERSION pytest==$PYTEST_VERSION
-    - python setup.py install
-script: py.test --strict
+before_script:
+    - pip install -r test_requirements.txt
+script:
+    - py.test --strict --cov=pytest_tornado/plugin.py --cov-report=term-missing
+after_success:
+  - coveralls
