@@ -3,12 +3,14 @@ python:
     - 2.7
     - 3.4
 env:
+    - TORNADO_VERSION=4.1 PYTEST_VERSION=2.7.0
     - TORNADO_VERSION=4.1 PYTEST_VERSION=2.6.4
     - TORNADO_VERSION=3.2.2 PYTEST_VERSION=2.6.4
+    - TORNADO_VERSION=3.2.2 PYTEST_VERSION=2.5.2
 install:
     - pip install -q tornado==$TORNADO_VERSION pytest==$PYTEST_VERSION
-before_script:
-    - pip install -r test_requirements.txt
+    - python setup.py install
+    - pip install pytest-cov coveralls
 script:
     - py.test --strict --cov=pytest_tornado/plugin.py --cov-report=term-missing
 after_success:
