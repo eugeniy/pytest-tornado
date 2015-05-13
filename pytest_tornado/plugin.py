@@ -1,4 +1,5 @@
 import os
+import types
 import inspect
 import functools
 import pytest
@@ -35,7 +36,10 @@ def _argnames(func):
     spec = inspect.getargspec(func)
     if spec.defaults:
         return spec.args[:-len(spec.defaults)]
-    return spec.args
+    if isinstance(func, types.FunctionType):
+        return spec.args
+    # Func is a bound method, skip "self"
+    return spec.args[1:]
 
 
 def _timeout(item):
