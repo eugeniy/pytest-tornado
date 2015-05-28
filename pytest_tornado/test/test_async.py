@@ -75,3 +75,16 @@ def test_generators_with_disabled_gen_test_marker():
 
     for i in range(3):
         yield _dummy, i, i*3
+
+
+class TestClass:
+    @pytest.mark.gen_test
+    def test_gen_test(self, io_loop):
+        result = yield dummy_coroutine(io_loop)
+        assert result
+
+    @pytest.mark.gen_test
+    def test_generator_raises(self, io_loop):
+        with pytest.raises(ZeroDivisionError):
+            yield gen.Task(io_loop.add_callback)
+            1 / 0
