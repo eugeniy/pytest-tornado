@@ -20,10 +20,11 @@ def test_eval(input, expected):
 @pytest.mark.parametrize('input,expected', [
     ('3+5', 8),
     ('2+4', 6),
-    pytest.mark.xfail(("6*9", 42)),
+    pytest.mark.f00marker(('6*9', 42)),
 ])
-def test_eval_marking(input, expected):
-    assert eval(input) == expected
+def test_eval_marking(request, input, expected):
+    assert ('f00marker' in request.keywords
+            or eval(input) == expected)
 
 
 @pytest.mark.parametrize('input,expected', [

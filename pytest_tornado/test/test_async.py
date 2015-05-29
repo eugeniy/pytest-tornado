@@ -59,10 +59,16 @@ def test_gen_test_marker_with_params(request, io_loop):
     assert request.keywords['gen_test'].kwargs['timeout'] == 2.1
 
 
-@pytest.mark.xfail(raises=TimeoutError)
-@pytest.mark.gen_test(timeout=0.1)
-def test_gen_test_with_timeout(io_loop):
-    yield gen.Task(io_loop.add_timeout, io_loop.time() + 1)
+def test_gen_test_with_timeout(testdir):
+    testdir.makepyfile(
+        'import pytest',
+        'from tornado import gen',
+        '@pytest.mark.gen_test(timeout=0.1)',
+        'def test_gen_test_with_timeout(io_loop):',
+        '    yield gen.Task(io_loop.add_timeout, io_loop.time() + 1)')
+    result = testdir.runpytest()
+    outcomes = result.parseoutcomes()
+    assert outcomes.get('failed') == 1
 
 
 def test_sync_tests_no_gen_test_marker(request):
