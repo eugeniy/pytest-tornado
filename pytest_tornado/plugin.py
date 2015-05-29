@@ -122,12 +122,11 @@ def http_server(request, io_loop, _unused_port):
 
     You must create an `app` fixture, which returns
     the `tornado.web.Application` to be tested.
-    """
-    try:
-        http_app = request.getfuncargvalue(request.config.option.app_fixture)
-    except Exception:
-        pytest.fail('tornado application fixture not found')
 
+    Raises:
+        FixtureLookupError: tornado application fixture not found
+    """
+    http_app = request.getfuncargvalue(request.config.option.app_fixture)
     server = tornado.httpserver.HTTPServer(http_app, io_loop=io_loop)
     server.add_socket(_unused_port[0])
 
