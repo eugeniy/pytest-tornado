@@ -2,6 +2,7 @@ import os
 import types
 import inspect
 import functools
+import datetime
 import pytest
 import tornado
 import tornado.gen
@@ -66,15 +67,27 @@ def pytest_runtest_setup(item):
 
 @pytest.mark.tryfirst
 def pytest_pyfunc_call(pyfuncitem):
-    if 'gen_test' in pyfuncitem.keywords:
+    gen_test_mark = pyfuncitem.keywords.get('gen_test')
+    if gen_test_mark:
         io_loop = pyfuncitem.funcargs.get('io_loop')
+        run_sync = gen_test_mark.kwargs.get('run_sync', True)
 
         funcargs = dict((arg, pyfuncitem.funcargs[arg])
                         for arg in _argnames(pyfuncitem.obj))
-
         coroutine = tornado.gen.coroutine(pyfuncitem.obj)
-        io_loop.run_sync(functools.partial(coroutine, **funcargs),
-                         timeout=_timeout(pyfuncitem))
+        coroutine_with_fixtures = functools.partial(coroutine, **funcargs)
+        if run_sync:
+            io_loop.run_sync(coroutine_with_fixtures, timeout=_timeout(pyfuncitem))
+        else:
+            # Run this test function as a coroutine, until the timeout. When completed, stop the IOLoop
+            # and reraise any exceptions
+            test_future = tornado.gen.with_timeout(datetime.timedelta(seconds=_timeout(pyfuncitem)),
+                                                   coroutine_with_fixtures())
+            io_loop.add_future(test_future, lambda future: io_loop.stop())
+            io_loop.start()
+
+            # This will reraise any exceptions that occurred.
+            test_future.result()
 
         # prevent other pyfunc calls from executing
         return True
