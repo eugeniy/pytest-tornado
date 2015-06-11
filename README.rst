@@ -102,6 +102,15 @@ setting an ``ASYNC_TEST_TIMEOUT`` environment variable,
     def test_tornado(http_client):
         yield http_client.fetch('http://www.tornadoweb.org/')
 
+The mark can also receive a run_sync flag, which if turned off will, instead of running the test synchronously, will add it as a coroutine and run the IOLoop (until the timeout). For instance, this allows to test things on both a client and a server at the same time. 
+
+.. code-block:: python
+
+    @pytest.mark.gen_test(run_sync=False)
+    def test_tornado(http_server, http_client):
+        response = yield http_client.fetch('http://localhost:5555/my_local_server_test/')
+        assert response.body == 'Run on the same IOLoop!'
+
 
 Show markers provided by the plugin::
 
