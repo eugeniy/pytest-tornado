@@ -1,5 +1,6 @@
 import functools
 import pytest
+import tornado
 from tornado import gen
 from tornado.ioloop import TimeoutError
 
@@ -30,6 +31,12 @@ def test_gen_test_sync(io_loop):
 
 @pytest.mark.gen_test
 def test_gen_test(io_loop):
+    result = yield dummy_coroutine(io_loop)
+    assert result
+
+
+@pytest.mark.gen_test(run_sync=False)
+def test_gen_test_run_sync_false(io_loop):
     result = yield dummy_coroutine(io_loop)
     assert result
 
