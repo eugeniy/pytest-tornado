@@ -1,7 +1,7 @@
 import os
+import sys
 import types
 import inspect
-import functools
 import datetime
 import pytest
 import tornado
@@ -9,6 +9,11 @@ import tornado.gen
 import tornado.testing
 import tornado.httpserver
 import tornado.httpclient
+
+if sys.version_info[:2] >= (3, 5):
+    iscoroutinefunction = inspect.iscoroutinefunction
+else:
+    iscoroutinefunction = lambda f: False
 
 
 def _get_async_test_timeout():
@@ -74,20 +79,24 @@ def pytest_pyfunc_call(pyfuncitem):
 
         funcargs = dict((arg, pyfuncitem.funcargs[arg])
                         for arg in _argnames(pyfuncitem.obj))
-        coroutine = tornado.gen.coroutine(pyfuncitem.obj)
-        coroutine_with_fixtures = functools.partial(coroutine, **funcargs)
+        if iscoroutinefunction(pyfuncitem.obj):
+            coroutine = pyfuncitem.obj
+            future = tornado.gen.convert_yielded(coroutine(**funcargs))
+        else:
+            coroutine = tornado.gen.coroutine(pyfuncitem.obj)
+            future = coroutine(**funcargs)
         if run_sync:
-            io_loop.run_sync(coroutine_with_fixtures, timeout=_timeout(pyfuncitem))
+            io_loop.run_sync(lambda: future, timeout=_timeout(pyfuncitem))
         else:
             # Run this test function as a coroutine, until the timeout. When completed, stop the IOLoop
             # and reraise any exceptions
-            test_future = tornado.gen.with_timeout(datetime.timedelta(seconds=_timeout(pyfuncitem)),
-                                                   coroutine_with_fixtures())
-            io_loop.add_future(test_future, lambda future: io_loop.stop())
+            future_with_timeout = tornado.gen.with_timeout(datetime.timedelta(seconds=_timeout(pyfuncitem)),
+                                                           future)
+            io_loop.add_future(future_with_timeout, lambda f: io_loop.stop())
             io_loop.start()
 
             # This will reraise any exceptions that occurred.
-            test_future.result()
+            future_with_timeout.result()
 
         # prevent other pyfunc calls from executing
         return True
