@@ -2,7 +2,10 @@ language: python
 python:
     - 2.7
     - 3.4
+    - 3.5
 env:
+    - TORNADO_VERSION=4.3 PYTEST_VERSION=2.8.6
+    - TORNADO_VERSION=4.1 PYTEST_VERSION=2.8.6
     - TORNADO_VERSION=4.1 PYTEST_VERSION=2.7.0
     - TORNADO_VERSION=4.1 PYTEST_VERSION=2.6.4
     - TORNADO_VERSION=3.2.2 PYTEST_VERSION=2.6.4
@@ -11,6 +14,18 @@ install:
     - pip install -q tornado==$TORNADO_VERSION pytest==$PYTEST_VERSION
     - python setup.py install
     - pip install pytest-cov coveralls
+matrix:
+  exclude:
+    - python: 3.5
+      env: TORNADO_VERSION=3.2.2 PYTEST_VERSION=2.6.4
+    - python: 3.5
+      env: TORNADO_VERSION=3.2.2 PYTEST_VERSION=2.5.2
+    - python: 3.5
+      env: TORNADO_VERSION=4.1 PYTEST_VERSION=2.6.4
+    - python: 3.5
+      env: TORNADO_VERSION=4.1 PYTEST_VERSION=2.5.2
+    - python: 3.5
+      env: TORNADO_VERSION=4.1 PYTEST_VERSION=2.7.0
 script:
     - py.test --strict --cov=pytest_tornado/plugin.py --cov-report=term-missing
 after_success:
