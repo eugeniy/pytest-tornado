@@ -11,7 +11,7 @@ with io.open(os.path.join(cwd, 'README.rst'), encoding='utf-8') as fd:
 
 setup(
     name='pytest-tornado',
-    version='0.4.4',
+    version='0.4.5',
     description=('A py.test plugin providing fixtures and markers '
                  'to simplify testing of asynchronous tornado applications.'),
     long_description=long_description,
@@ -20,7 +20,7 @@ setup(
     author_email='burump@gmail.com',
     license='Apache License, Version 2.0',
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Environment :: Plugins',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Apache Software License',
