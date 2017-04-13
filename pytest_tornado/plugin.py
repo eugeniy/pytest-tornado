@@ -198,3 +198,52 @@ def http_client(request, http_server):
 
     request.addfinalizer(_close)
     return client
+
+
+@pytest.fixture
+def https_server(request, io_loop, _unused_port):
+    """Start a tornado HTTPS server.
+
+    You must create an `app` fixture, which returns
+    the `tornado.web.Application` to be tested.
+
+    Raises:
+        FixtureLookupError: tornado application fixture not found
+    """
+    http_app = request.getfuncargvalue(request.config.option.app_fixture)
+    ssl_options = {}
+    # I dont know to get server cert & key from user 
+    """
+    http_server = HTTPServer(application, ssl_options={
+            "certfile": settings["server_certfile"],
+            "keyfile": settings["server_keyfile"]
+            })
+    """
+    server = tornado.httpserver.HTTPServer(http_app, ssl_options=ssl_options, io_loop=io_loop)
+    server.add_socket(_unused_port[0])
+
+    def _stop():
+        server.stop()
+
+        if hasattr(server, 'close_all_connections'):
+            io_loop.run_sync(server.close_all_connections,
+                             timeout=request.config.option.async_test_timeout)
+
+    request.addfinalizer(_stop)
+    return server
+
+
+@pytest.fixture
+def https_client(request, http_server):
+    """Get an asynchronous HTTPS client.
+    """
+    # How does on get ca_certs from the user
+    client = tornado.httpclient.AsyncHTTPClient(ca_certs=ca_certs, io_loop=https_server.io_loop)
+
+    def _close():
+        if (not tornado.ioloop.IOLoop.initialized() or
+                client.io_loop is not tornado.ioloop.IOLoop.instance()):
+            client.close()
+
+    request.addfinalizer(_close)
+    return client
