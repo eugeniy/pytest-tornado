@@ -25,15 +25,15 @@ def _fetch(http_client, url):
         functools.partial(http_client.fetch, url))
 
 
-def test_http_server(http_server):
+def test_http_server(http_server, io_loop):
     status = {'done': False}
 
     def _done():
         status['done'] = True
-        http_server.io_loop.stop()
+        io_loop.stop()
 
-    http_server.io_loop.add_callback(_done)
-    http_server.io_loop.start()
+    io_loop.add_callback(_done)
+    io_loop.start()
 
     assert status['done']
 
