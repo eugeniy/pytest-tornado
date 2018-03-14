@@ -18,6 +18,8 @@ setup(
     url='https://github.com/eugeniy/pytest-tornado',
     author='Eugeniy Kalinin',
     author_email='burump@gmail.com',
+    maintainer='Vidar Tonaas Fauske',
+    maintainer_email='vidartf@gmail.com',
     license='Apache License, Version 2.0',
     classifiers=[
         'Development Status :: 5 - Production/Stable',
