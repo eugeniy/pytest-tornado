@@ -76,14 +76,6 @@ def test_sync_tests_no_gen_test_marker(request):
     assert 'gen_test' not in request.keywords
 
 
-def test_generators_with_disabled_gen_test_marker():
-    def _dummy(a, b):
-        assert a*3 == b
-
-    for i in range(3):
-        yield _dummy, i, i*3
-
-
 class TestClass:
     @pytest.mark.gen_test
     def test_gen_test(self, io_loop):
