@@ -133,9 +133,7 @@ def io_loop(request):
 
     def _close():
         io_loop.clear_current()
-        if (not tornado.ioloop.IOLoop.initialized() or
-                io_loop is not tornado.ioloop.IOLoop.instance()):
-            io_loop.close(all_fds=True)
+        io_loop.close(all_fds=True)
 
     request.addfinalizer(_close)
     return io_loop
@@ -171,7 +169,7 @@ def http_server(request, io_loop, _unused_port):
         FixtureLookupError: tornado application fixture not found
     """
     http_app = request.getfuncargvalue(request.config.option.app_fixture)
-    server = tornado.httpserver.HTTPServer(http_app, io_loop=io_loop)
+    server = tornado.httpserver.HTTPServer(http_app)
     server.add_socket(_unused_port[0])
 
     def _stop():
@@ -189,12 +187,10 @@ def http_server(request, io_loop, _unused_port):
 def http_client(request, http_server):
     """Get an asynchronous HTTP client.
     """
-    client = tornado.httpclient.AsyncHTTPClient(io_loop=http_server.io_loop)
+    client = tornado.httpclient.AsyncHTTPClient()
 
     def _close():
-        if (not tornado.ioloop.IOLoop.initialized() or
-                client.io_loop is not tornado.ioloop.IOLoop.instance()):
-            client.close()
+        client.close()
 
     request.addfinalizer(_close)
     return client
