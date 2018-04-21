@@ -35,6 +35,8 @@ setup(
               'testing unit tests plugin'),
     packages=find_packages(),
     install_requires=['pytest', 'tornado>=4'],
+    setup_requires=['pytest-runner'],
+    tests_require=['pytest'],
     entry_points={
         'pytest11': ['tornado = pytest_tornado.plugin'],
     },
