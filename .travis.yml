@@ -26,11 +26,16 @@ matrix:
       env: TORNADO_VERSION=4.1 PYTEST_VERSION=2.7.0
 script:
     - py.test --strict
-deploy:
-  provider: pypi
-  distributions: "sdist bdist_wheel"
-  user: eugeniy
-  password:
-    secure: gmpsfekSDT9LuF3XkJK64myhQ6Xg8WyqI/0m5Gnnb+hSrCFGD8/dgtRdLEULuDkFPvL/FsoE2L6XcdKuqaKkqSM3kk4Min8hqGapcfe/OSOkCDaYSUBCXmV2dlbtMTAzHfo3zpueToUelZvblw9y3wXVFWkmr1mf47Q9kUPIgnU=
-  on:
-    tags: true
+
+jobs:
+  include:
+    - stage: deploy
+      deploy:
+        provider: pypi
+        distributions: sdist bdist_wheel
+        script: skip
+        user: eugeniy
+        password:
+          secure: gmpsfekSDT9LuF3XkJK64myhQ6Xg8WyqI/0m5Gnnb+hSrCFGD8/dgtRdLEULuDkFPvL/FsoE2L6XcdKuqaKkqSM3kk4Min8hqGapcfe/OSOkCDaYSUBCXmV2dlbtMTAzHfo3zpueToUelZvblw9y3wXVFWkmr1mf47Q9kUPIgnU=
+#        on:
+#          tags: true
