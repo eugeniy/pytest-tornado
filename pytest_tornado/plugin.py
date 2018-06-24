@@ -59,13 +59,18 @@ def pytest_configure(config):
 
 
 def _argnames(func):
-    spec = inspect.getargspec(func)
-    if spec.defaults:
-        return spec.args[:-len(spec.defaults)]
-    if isinstance(func, types.FunctionType):
-        return spec.args
-    # Func is a bound method, skip "self"
-    return spec.args[1:]
+    if hasattr(inspect, "signature"):
+        sig = inspect.signature(func)
+        return [name for name, param in sig.parameters.items()
+                if param.default is param.empty]
+    else:
+        spec = inspect.getargspec(func)
+        if spec.defaults:
+            return spec.args[:-len(spec.defaults)]
+        if isinstance(func, types.FunctionType):
+            return spec.args
+        # Func is a bound method, skip "self"
+        return spec.args[1:]
 
 
 def _timeout(item):
