@@ -25,3 +25,9 @@ pytestmark = pytest.mark.usefixtures('preparations')
 def test_uses_pytestmark_fixtures(io_loop):
     assert (yield dummy(io_loop))
     assert _used_fixture
+
+class TestClass:
+    @pytest.mark.gen_test
+    def test_uses_pytestmark_fixtures(self, io_loop):
+        assert (yield dummy(io_loop))
+        assert _used_fixture
