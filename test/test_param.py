@@ -20,7 +20,8 @@ def test_eval(input, expected):
 @pytest.mark.parametrize('input,expected', [
     ('3+5', 8),
     ('2+4', 6),
-    pytest.mark.xfail(("6*9", 42)),
+    pytest.param("6*9", 42,
+                 marks=pytest.mark.xfail),
 ])
 def test_eval_marking(input, expected):
     assert eval(input) == expected

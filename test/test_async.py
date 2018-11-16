@@ -63,7 +63,7 @@ def test_explicit_gen_test_marker(request, io_loop):
 @pytest.mark.gen_test(timeout=2.1)
 def test_gen_test_marker_with_params(request, io_loop):
     yield gen.Task(io_loop.add_callback)
-    assert request.keywords['gen_test'].kwargs['timeout'] == 2.1
+    assert request.node.get_closest_marker('gen_test').kwargs['timeout'] == 2.1
 
 
 @pytest.mark.xfail(raises=TimeoutError)
