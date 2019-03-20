@@ -37,10 +37,24 @@ class TestClass:
         assert (yield dummy(io_loop))
         assert _used_fixture
 
-    if sys.version_info >= (3, 5):
-        from tornado.ioloop import IOLoop
 
-        @pytest.mark.gen_test
-        def test_type_attrib(self, io_loop: IOLoop):
-            assert (yield dummy(io_loop))
-            assert _used_fixture
+@pytest.mark.xfail(sys.version_info < (3, 5),
+                   reason='Type hints added in Python 3.5')
+def test_type_annotation(testdir):
+
+    testdir.makepyfile(
+        test_type_annotation="""
+            import pytest
+            from tornado.ioloop import IOLoop
+
+            @pytest.mark.gen_test
+            def test_type_attrib(io_loop: IOLoop):
+                pass  # Only check that gen_test works
+        """,
+    )
+
+    # Run tests
+    result = testdir.runpytest_inprocess()
+
+    # Check tests went off as they should:
+    assert result.ret == 0
