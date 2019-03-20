@@ -1,4 +1,5 @@
 import pytest
+import sys
 from tornado import gen
 
 _used_fixture = False
@@ -27,7 +28,19 @@ def test_uses_pytestmark_fixtures(io_loop):
     assert _used_fixture
 
 class TestClass:
+    def beforeEach(self):
+        global _used_fixture
+        _used_fixture = False
+
     @pytest.mark.gen_test
     def test_uses_pytestmark_fixtures(self, io_loop):
         assert (yield dummy(io_loop))
         assert _used_fixture
+
+    if sys.version_info >= (3, 5):
+        from tornado.ioloop import IOLoop
+
+        @pytest.mark.gen_test
+        def test_type_attrib(self, io_loop: IOLoop):
+            assert (yield dummy(io_loop))
+            assert _used_fixture
