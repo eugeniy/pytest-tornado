@@ -1,9 +1,11 @@
 language: python
+dist: xenial
 python:
     - 2.7
     - 3.4
     - 3.5
     - 3.6
+    - 3.7
 env:
     - TORNADO_VERSION=5.0 PYTEST_VERSION=4.0
     - TORNADO_VERSION=5.0.0 PYTEST_VERSION=3.6
