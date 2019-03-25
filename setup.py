@@ -18,6 +18,8 @@ setup(
     url='https://github.com/eugeniy/pytest-tornado',
     author='Eugeniy Kalinin',
     author_email='burump@gmail.com',
+    maintainer='Vidar Tonaas Fauske',
+    maintainer_email='vidartf@gmail.com',
     license='Apache License, Version 2.0',
     classifiers=[
         'Development Status :: 5 - Production/Stable',
@@ -33,8 +35,8 @@ setup(
     ],
     keywords=('pytest py.test tornado async asynchronous '
               'testing unit tests plugin'),
-    packages=find_packages(),
-    install_requires=['pytest', 'tornado>=4'],
+    packages=find_packages(exclude=["tests.*", "tests"]),
+    install_requires=['pytest>=3.6', 'tornado>=4'],
     entry_points={
         'pytest11': ['tornado = pytest_tornado.plugin'],
     },

@@ -5,25 +5,15 @@ python:
     - 3.5
     - 3.6
 env:
-    - TORNADO_VERSION=5.0 PYTEST_VERSION=3.4.2
-    - TORNADO_VERSION=4.3 PYTEST_VERSION=2.8.6
-    - TORNADO_VERSION=4.1 PYTEST_VERSION=2.8.6
-    - TORNADO_VERSION=4.1 PYTEST_VERSION=2.7.0
-    - TORNADO_VERSION=4.1 PYTEST_VERSION=2.6.4
+    - TORNADO_VERSION=5.0 PYTEST_VERSION=4.0
+    - TORNADO_VERSION=5.0.0 PYTEST_VERSION=3.6
+    - TORNADO_VERSION=5.0.0 PYTEST_VERSION=4.0.0
+    - TORNADO_VERSION=4.3.0 PYTEST_VERSION=3.6
+    - TORNADO_VERSION=4.1.0 PYTEST_VERSION=3.6.4
 install:
-    - pip install -q tornado==$TORNADO_VERSION pytest==$PYTEST_VERSION
+    - pip install -q tornado~=$TORNADO_VERSION pytest~=$PYTEST_VERSION
     - python setup.py install
     - pip install pytest-cov coveralls
-matrix:
-  exclude:
-    - python: 3.5
-      env: TORNADO_VERSION=4.1 PYTEST_VERSION=2.6.4
-    - python: 3.5
-      env: TORNADO_VERSION=4.1 PYTEST_VERSION=2.7.0
-    - python: 3.6
-      env: TORNADO_VERSION=4.1 PYTEST_VERSION=2.6.4
-    - python: 3.6
-      env: TORNADO_VERSION=4.1 PYTEST_VERSION=2.7.0
 script:
     - py.test --strict
 

@@ -63,7 +63,7 @@ def test_explicit_gen_test_marker(request, io_loop):
 @pytest.mark.gen_test(timeout=2.1)
 def test_gen_test_marker_with_params(request, io_loop):
     yield gen.Task(io_loop.add_callback)
-    assert request.keywords['gen_test'].kwargs['timeout'] == 2.1
+    assert request.node.get_closest_marker('gen_test').kwargs['timeout'] == 2.1
 
 
 @pytest.mark.xfail(raises=TimeoutError)
@@ -74,14 +74,6 @@ def test_gen_test_with_timeout(io_loop):
 
 def test_sync_tests_no_gen_test_marker(request):
     assert 'gen_test' not in request.keywords
-
-
-def test_generators_with_disabled_gen_test_marker():
-    def _dummy(a, b):
-        assert a*3 == b
-
-    for i in range(3):
-        yield _dummy, i, i*3
 
 
 class TestClass:
