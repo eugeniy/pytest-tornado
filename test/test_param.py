@@ -54,7 +54,7 @@ def test_param_fixture(_dummy):
     ('2+4', 6),
 ])
 def test_gen_test_parametrize(io_loop, input, expected):
-    yield gen.Task(io_loop.add_callback)
+    yield gen.sleep(0)
     assert eval(input) == expected
 
 
@@ -64,11 +64,11 @@ def test_gen_test_parametrize(io_loop, input, expected):
 ])
 @pytest.mark.gen_test
 def test_gen_test_fixture_any_order(input, io_loop, expected):
-    yield gen.Task(io_loop.add_callback)
+    yield gen.sleep(0)
     assert eval(input) == expected
 
 
 @pytest.mark.gen_test
 def test_gen_test_param_fixture(io_loop, _dummy):
-    yield gen.Task(io_loop.add_callback)
+    yield gen.sleep(0)
     assert _dummy in DUMMY_PARAMS
