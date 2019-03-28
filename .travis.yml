@@ -15,9 +15,12 @@ env:
 install:
     - pip install -q tornado~=$TORNADO_VERSION pytest~=$PYTEST_VERSION
     - python setup.py install
-    - pip install pytest-cov coveralls
+    - pip install coverage coveralls
 script:
-    - py.test --strict
+    - coverage run --branch --source pytest_tornado.plugin -m pytest --strict
+    - coverage report -m
+after_success:
+    - coveralls
 
 jobs:
   include:
