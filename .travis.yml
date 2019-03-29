@@ -7,6 +7,7 @@ python:
     - 3.6
     - 3.7
 env:
+    - TORNADO_VERSION=6.0 PYTEST_VERSION=4.3
     - TORNADO_VERSION=5.0 PYTEST_VERSION=4.0
     - TORNADO_VERSION=5.0.0 PYTEST_VERSION=3.6
     - TORNADO_VERSION=5.0.0 PYTEST_VERSION=4.0.0
@@ -16,6 +17,11 @@ install:
     - pip install -q tornado~=$TORNADO_VERSION pytest~=$PYTEST_VERSION
     - python setup.py install
     - pip install coverage coveralls
+matrix:
+  exclude:
+    # Tornado 6 only supports Python >= 3.5
+    - python: 2.7
+      env: TORNADO_VERSION=6.0 PYTEST_VERSION=4.3
 script:
     - coverage run --branch --source pytest_tornado.plugin -m pytest --strict
     - coverage report -m
@@ -25,6 +31,7 @@ after_success:
 jobs:
   include:
     - stage: deploy
+      python: 3.7
       deploy:
         provider: pypi
         distributions: sdist bdist_wheel

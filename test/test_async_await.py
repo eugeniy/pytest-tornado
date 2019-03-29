@@ -2,7 +2,7 @@ import pytest
 from tornado import gen
 
 async def dummy_native_coroutine(io_loop):
-    await gen.Task(io_loop.add_callback)
+    await gen.sleep(0)
     return True
 
 

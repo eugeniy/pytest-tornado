@@ -7,7 +7,7 @@ _used_fixture = False
 
 @gen.coroutine
 def dummy(io_loop):
-    yield gen.Task(io_loop.add_callback)
+    yield gen.sleep(0)
     raise gen.Return(True)
 
 
