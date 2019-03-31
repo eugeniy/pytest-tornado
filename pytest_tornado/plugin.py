@@ -215,7 +215,7 @@ def https_server(request, io_loop, _unused_port):
 
 
 @pytest.fixture
-def https_client(request, http_server):
+def https_client(request, https_server):
     """Get an asynchronous HTTPS client.
     """
     # How does on get ca_certs from the user
