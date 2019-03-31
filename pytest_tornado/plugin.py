@@ -191,7 +191,7 @@ def https_server(request, io_loop, _unused_port):
     Raises:
         FixtureLookupError: tornado application fixture not found
     """
-    http_app = request.getfuncargvalue(request.config.option.app_fixture)
+    http_app = request.getfixturevalue(request.config.option.app_fixture)
     ssl_options = {}
     # I dont know to get server cert & key from user 
     """
