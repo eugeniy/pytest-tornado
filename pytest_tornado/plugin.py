@@ -219,12 +219,10 @@ def https_client(request, https_server):
     """Get an asynchronous HTTPS client.
     """
     # How does on get ca_certs from the user
-    client = tornado.httpclient.AsyncHTTPClient(ca_certs=ca_certs, io_loop=https_server.io_loop)
+    client = tornado.httpclient.AsyncHTTPClient()
 
     def _close():
-        if (not tornado.ioloop.IOLoop.initialized() or
-                client.io_loop is not tornado.ioloop.IOLoop.instance()):
-            client.close()
+        client.close()
 
     request.addfinalizer(_close)
     return client
