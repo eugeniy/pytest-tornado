@@ -29,6 +29,8 @@ def pytest_addoption(parser):
                      help='timeout in seconds before failing the test')
     parser.addoption('--app-fixture', default='app',
                      help='fixture name returning a tornado application')
+    parser.addoption('--ssl-options-fixture', default='ssl_options',
+                     help='fixture name returning a certificate configuration')
 
 
 def pytest_configure(config):
@@ -192,15 +194,8 @@ def https_server(request, io_loop, _unused_port):
         FixtureLookupError: tornado application fixture not found
     """
     http_app = request.getfixturevalue(request.config.option.app_fixture)
-    ssl_options = {}
-    # I dont know to get server cert & key from user 
-    """
-    http_server = HTTPServer(application, ssl_options={
-            "certfile": settings["server_certfile"],
-            "keyfile": settings["server_keyfile"]
-            })
-    """
-    server = tornado.httpserver.HTTPServer(http_app, ssl_options=ssl_options, io_loop=io_loop)
+    ssl_options = request.getfixturevalue(request.config.option.ssl_options_fixture)
+    server = tornado.httpserver.HTTPServer(http_app, ssl_options=ssl_options)
     server.add_socket(_unused_port[0])
 
     def _stop():
