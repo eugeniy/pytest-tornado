@@ -142,7 +142,7 @@ def http_port(_unused_port):
 def https_port(_unused_port):
     """Get a port used by the test server.
     """
-    return _unused_port[0]
+    return _unused_port[1]
 
 
 @pytest.fixture
@@ -191,7 +191,7 @@ def http_client(request, http_server):
 
 
 @pytest.fixture
-def https_server(request, io_loop, https_port):
+def https_server(request, io_loop, _unused_port):
     """Start a tornado HTTPS server.
 
     You must create an `app` fixture, which returns
@@ -203,7 +203,7 @@ def https_server(request, io_loop, https_port):
     http_app = request.getfixturevalue(request.config.option.app_fixture)
     ssl_options = request.getfixturevalue(request.config.option.ssl_options_fixture)
     server = tornado.httpserver.HTTPServer(http_app, ssl_options=ssl_options)
-    server.add_socket(https_port)
+    server.add_socket(_unused_port[0])
 
     def _stop():
         server.stop()
