@@ -153,6 +153,13 @@ def base_url(http_port):
 
 
 @pytest.fixture
+def secure_base_url(https_port):
+    """Create an absolute base url (scheme://host:port)
+    """
+    return 'https://localhost:%s' % https_port
+
+
+@pytest.fixture
 def http_server(request, io_loop, _unused_port):
     """Start a tornado HTTP server.
 
