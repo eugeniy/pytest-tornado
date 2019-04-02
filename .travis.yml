@@ -15,6 +15,7 @@ env:
     - TORNADO_VERSION=4.1.0 PYTEST_VERSION=3.6.4
 install:
     - pip install -q tornado~=$TORNADO_VERSION pytest~=$PYTEST_VERSION
+    - pip install PyOpenSSL  # used to create a cert for testing
     - python setup.py install
     - pip install coverage coveralls
 matrix:
@@ -23,6 +24,7 @@ matrix:
     - python: 2.7
       env: TORNADO_VERSION=6.0 PYTEST_VERSION=4.3
 script:
+    - python test/create_cert.py --cert test/testcert.pem
     - coverage run --branch --source pytest_tornado.plugin -m pytest --strict
     - coverage report -m
 after_success:
