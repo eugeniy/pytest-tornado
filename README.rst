@@ -73,6 +73,28 @@ http_client
     get an asynchronous HTTP client
 
 
+There is also the possibility to test applications with HTTPS.
+For running a server with HTTPS you need a certificate.
+
+https_port
+    Get a port used by the test server.
+
+secure_base_url
+    Get an absolute base url for the test server.
+    For example ``https://localhost:28598``
+
+https_server
+    Start a tornado HTTPS server. You must create an ``app`` fixture,
+    which returns the `tornado.web.Application`_ to be tested, and
+    an ``ssl_options`` fixture which returns the SSL options for the
+    `tornado.httpserver.HTTPServer`_.
+
+https_client
+    Get an asynchronous HTTP client.
+    In case your test uses an self-signed certificate you can set
+    ``verify=False`` on the fetch method.
+
+
 Show fixtures provided by the plugin::
 
     py.test --fixtures
@@ -102,7 +124,7 @@ setting an ``ASYNC_TEST_TIMEOUT`` environment variable,
     def test_tornado(http_client):
         yield http_client.fetch('http://www.tornadoweb.org/')
 
-The mark can also receive a run_sync flag, which if turned off will, instead of running the test synchronously, will add it as a coroutine and run the IOLoop (until the timeout). For instance, this allows to test things on both a client and a server at the same time. 
+The mark can also receive a run_sync flag, which if turned off will, instead of running the test synchronously, will add it as a coroutine and run the IOLoop (until the timeout). For instance, this allows to test things on both a client and a server at the same time.
 
 .. code-block:: python
 
@@ -118,6 +140,7 @@ Show markers provided by the plugin::
 
 
 .. _py.test: http://pytest.org/
+.. _`tornado.httpserver.HTTPServer`: https://www.tornadoweb.org/en/latest/httpserver.html#http-server
 .. _`tornado.ioloop.IOLoop`: http://tornado.readthedocs.org/en/latest/ioloop.html#ioloop-objects
 .. _`tornado.web.Application`: http://tornado.readthedocs.org/en/latest/web.html#application-configuration
 .. _`tornado.gen`: http://tornado.readthedocs.org/en/latest/gen.html
