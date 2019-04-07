@@ -8,7 +8,6 @@ Source: https://github.com/opsi-org/python-opsi/blob/stable/OPSI/Util/Task/Certi
 import argparse
 import os
 import random
-import shutil
 import socket
 from tempfile import NamedTemporaryFile
 
