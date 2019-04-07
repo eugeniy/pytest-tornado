@@ -31,6 +31,20 @@ def app():
 
 
 @pytest.mark.gen_test
-def test_hello_world(https_client, secure_base_url):
-    response = yield https_client.fetch(secure_base_url, validate_cert=False)
+def test_hello_world(https_client, base_url):
+    response = yield https_client.fetch(base_url, validate_cert=False)
     assert response.code == 200
+
+
+def test_base_url_is_https_with_https_client(https_client, base_url):
+    assert base_url.startswith('https://')
+
+
+
+def test_base_url_is_https_with_https_port(https_port, base_url):
+    assert base_url.startswith('https://')
+
+
+
+def test_base_url_is_https_with_https_server(https_server, base_url):
+    assert base_url.startswith('https://')

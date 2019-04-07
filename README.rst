@@ -62,8 +62,10 @@ http_port
     get a port used by the test server
 
 base_url
-    get an absolute base url for the test server,
-    for example, ``http://localhost:59828``
+    Get an absolute base url for the test server,
+    for example ``http://localhost:59828``.
+    Can also be used in a test with HTTPS fixture and will then return
+    a corresponding url, for example ``http://localhost:48372``.
 
 http_server
     start a tornado HTTP server, you must create an ``app`` fixture,
@@ -78,10 +80,6 @@ For running a server with HTTPS you need a certificate.
 
 https_port
     Get a port used by the test server.
-
-secure_base_url
-    Get an absolute base url for the test server.
-    For example ``https://localhost:28598``
 
 https_server
     Start a tornado HTTPS server. You must create an ``app`` fixture,

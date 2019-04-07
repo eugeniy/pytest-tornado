@@ -146,17 +146,14 @@ def https_port(_unused_port):
 
 
 @pytest.fixture
-def base_url(http_port):
+def base_url(request):
     """Create an absolute base url (scheme://host:port)
     """
-    return 'http://localhost:%s' % http_port
+    fixturenames = request.fixturenames
+    if 'https_port' in fixturenames or 'https_client' in fixturenames or 'https_server' in fixturenames:
+        return 'https://localhost:%s' % request.getfixturevalue('https_port')
 
-
-@pytest.fixture
-def secure_base_url(https_port):
-    """Create an absolute base url (scheme://host:port)
-    """
-    return 'https://localhost:%s' % https_port
+    return 'http://localhost:%s' % request.getfixturevalue('http_port')
 
 
 @pytest.fixture
