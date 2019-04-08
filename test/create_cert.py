@@ -58,13 +58,16 @@ def createCertificate(path):
 	with open(path, "wt") as certfile:
 		certfile.write(certcontext.decode())
 
-	with NamedTemporaryFile(mode="wb") as randfile:
-		randfile.write(randomBytes(512))
+	try:
+		with NamedTemporaryFile(mode="wb", delete=False) as randfile:
+			randfile.write(randomBytes(512))
 
-		command = u"openssl dhparam -rand {tempfile} 512 >> {target}".format(
-			tempfile=randfile.name, target=path
-		)
+			command = u"openssl dhparam -rand {tempfile} 512 >> {target}".format(
+				tempfile=randfile.name, target=path
+			)
 		os.system(command)
+	finally:
+		os.remove(randfile.name)
 
 
 def randomBytes(length):
