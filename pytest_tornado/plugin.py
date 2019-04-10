@@ -24,13 +24,14 @@ def _get_async_test_timeout():
 
 
 def pytest_addoption(parser):
-    parser.addoption('--async-test-timeout', type=float,
-                     default=_get_async_test_timeout(),
-                     help='timeout in seconds before failing the test')
-    parser.addoption('--app-fixture', default='app',
-                     help='fixture name returning a tornado application')
-    parser.addoption('--ssl-options-fixture', default='ssl_options',
-                     help='fixture name returning a certificate configuration')
+    tornado_group = parser.getgroup('tornado options')
+    tornado_group.addoption('--async-test-timeout', type=float,
+                            default=_get_async_test_timeout(),
+                            help='timeout in seconds before failing the test')
+    tornado_group.addoption('--app-fixture', default='app',
+                            help='fixture name returning a tornado application')
+    tornado_group.addoption('--ssl-options-fixture', default='ssl_options',
+                            help='fixture name returning a certificate configuration')
 
 
 def pytest_configure(config):
