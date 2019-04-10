@@ -29,6 +29,8 @@ def pytest_addoption(parser):
                      help='timeout in seconds before failing the test')
     parser.addoption('--app-fixture', default='app',
                      help='fixture name returning a tornado application')
+    parser.addoption('--ssl-options-fixture', default='ssl_options',
+                     help='fixture name returning a certificate configuration')
 
 
 def pytest_configure(config):
@@ -137,10 +139,21 @@ def http_port(_unused_port):
 
 
 @pytest.fixture
-def base_url(http_port):
+def https_port(_unused_port):
+    """Get a port used by the test server.
+    """
+    return _unused_port[1]
+
+
+@pytest.fixture
+def base_url(request):
     """Create an absolute base url (scheme://host:port)
     """
-    return 'http://localhost:%s' % http_port
+    fixturenames = request.fixturenames
+    if 'https_port' in fixturenames or 'https_client' in fixturenames or 'https_server' in fixturenames:
+        return 'https://localhost:%s' % request.getfixturevalue('https_port')
+
+    return 'http://localhost:%s' % request.getfixturevalue('http_port')
 
 
 @pytest.fixture
@@ -172,6 +185,46 @@ def http_server(request, io_loop, _unused_port):
 def http_client(request, http_server):
     """Get an asynchronous HTTP client.
     """
+    client = tornado.httpclient.AsyncHTTPClient()
+
+    def _close():
+        client.close()
+
+    request.addfinalizer(_close)
+    return client
+
+
+@pytest.fixture
+def https_server(request, io_loop, _unused_port):
+    """Start a tornado HTTPS server.
+
+    You must create an `app` fixture, which returns
+    the `tornado.web.Application` to be tested.
+
+    Raises:
+        FixtureLookupError: tornado application fixture not found
+    """
+    https_app = request.getfixturevalue(request.config.option.app_fixture)
+    ssl_options = request.getfixturevalue(request.config.option.ssl_options_fixture)
+    server = tornado.httpserver.HTTPServer(https_app, ssl_options=ssl_options)
+    server.add_socket(_unused_port[0])
+
+    def _stop():
+        server.stop()
+
+        if hasattr(server, 'close_all_connections'):
+            io_loop.run_sync(server.close_all_connections,
+                             timeout=request.config.option.async_test_timeout)
+
+    request.addfinalizer(_stop)
+    return server
+
+
+@pytest.fixture
+def https_client(request, https_server):
+    """Get an asynchronous HTTPS client.
+    """
+    # How does on get ca_certs from the user
     client = tornado.httpclient.AsyncHTTPClient()
 
     def _close():

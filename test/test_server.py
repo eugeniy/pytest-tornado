@@ -68,3 +68,7 @@ def test_get_url_with_path(http_client, base_url):
 def test_http_client_raises_on_404(http_client, base_url):
     with pytest.raises(tornado.httpclient.HTTPError):
         yield http_client.fetch('%s/bar' % base_url)
+
+
+def test_base_url_default_is_http(base_url):
+    assert base_url.startswith('http://')
