@@ -1,0 +1,14 @@
+# Unreleased
+
+* Added support for HTTPS testing
+* Group commandline options for pytest
+
+# 0.7 (2019-04-08)
+
+* Added support for Tornado 6
+* Requires at least Tornado 4.1
+
+# 0.6 (2019-03-28)
+
+* Requires at least pytest 3.6
+* Removed support for Tornado 3
