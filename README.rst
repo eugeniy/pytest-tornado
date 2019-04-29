@@ -112,7 +112,7 @@ A ``gen_test`` marker lets you write a coroutine-style tests used with the
         assert response.code == 200
 
 
-This marker supports writing tests with async/await syntax aswell:
+This marker supports writing tests with async/await syntax as well:
 
 .. code-block:: python
 
