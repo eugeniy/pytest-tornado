@@ -112,6 +112,16 @@ A ``gen_test`` marker lets you write a coroutine-style tests used with the
         assert response.code == 200
 
 
+This marker supports writing tests with async/await syntax as well:
+
+.. code-block:: python
+
+    @pytest.mark.gen_test
+    async def test_tornado(http_client):
+        response = await http_client.fetch('http://www.tornadoweb.org/')
+        assert response.code == 200
+
+
 Marked tests will time out after 5 seconds. The timeout can be modified by
 setting an ``ASYNC_TEST_TIMEOUT`` environment variable,
 ``--async-test-timeout`` command line argument or a marker argument.
