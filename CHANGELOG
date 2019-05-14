@@ -1,5 +1,7 @@
 # Unreleased
 
+# 0.8.0
+
 * Added support for HTTPS testing (#50)
 * Group commandline options for pytest (#53)
 
