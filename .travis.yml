@@ -15,7 +15,7 @@ env:
     - TORNADO_VERSION=4.3.0 PYTEST_VERSION=3.6
     - TORNADO_VERSION=4.1.0 PYTEST_VERSION=3.6.4
 install:
-    - pip install -q tornado~=$TORNADO_VERSION pytest~=$PYTEST_VERSION
+    - pip install tornado~=$TORNADO_VERSION pytest~=$PYTEST_VERSION
     - pip install PyOpenSSL  # used to create a cert for testing
     - python setup.py install
     - pip install coverage coveralls
