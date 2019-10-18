@@ -6,6 +6,7 @@ python:
     - 3.5
     - 3.6
     - 3.7
+    - 3.8
 env:
     - TORNADO_VERSION=6.0 PYTEST_VERSION=4.3
     - TORNADO_VERSION=5.0 PYTEST_VERSION=4.0
