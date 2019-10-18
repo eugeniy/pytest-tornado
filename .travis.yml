@@ -24,6 +24,9 @@ matrix:
     # Tornado 6 only supports Python >= 3.5
     - python: 2.7
       env: TORNADO_VERSION=6.0 PYTEST_VERSION=4.3
+    # Pytest 4.0.0 requires an version of attrs that does not work with Python 3.8.
+    - python: 3.8
+      env: TORNADO_VERSION=5.0.0 PYTEST_VERSION=4.0.0
 script:
     - python test/create_cert.py --cert test/testcert.pem
     - coverage run --branch --source pytest_tornado.plugin -m pytest --strict
