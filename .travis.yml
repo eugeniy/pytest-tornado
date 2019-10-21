@@ -7,7 +7,9 @@ python:
     - 3.6
     - 3.7
 env:
+    - TORNADO_VERSION=6.0 PYTEST_VERSION=5.2
     - TORNADO_VERSION=6.0 PYTEST_VERSION=4.3
+    - TORNADO_VERSION=5.0 PYTEST_VERSION=5.2
     - TORNADO_VERSION=5.0 PYTEST_VERSION=4.0
     - TORNADO_VERSION=5.0.0 PYTEST_VERSION=3.6
     - TORNADO_VERSION=5.0.0 PYTEST_VERSION=4.0.0
@@ -23,6 +25,11 @@ matrix:
     # Tornado 6 only supports Python >= 3.5
     - python: 2.7
       env: TORNADO_VERSION=6.0 PYTEST_VERSION=4.3
+    # pytest 5 requires Python 3
+    - python: 2.7
+      env: TORNADO_VERSION=6.0 PYTEST_VERSION=5.2
+    - python: 2.7
+      env: TORNADO_VERSION=5.0 PYTEST_VERSION=5.2
 script:
     - python test/create_cert.py --cert test/testcert.pem
     - coverage run --branch --source pytest_tornado.plugin -m pytest --strict
