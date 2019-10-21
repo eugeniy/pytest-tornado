@@ -8,7 +8,9 @@ python:
     - 3.7
     - 3.8
 env:
+    - TORNADO_VERSION=6.0 PYTEST_VERSION=5.2
     - TORNADO_VERSION=6.0 PYTEST_VERSION=4.3
+    - TORNADO_VERSION=5.0 PYTEST_VERSION=5.2
     - TORNADO_VERSION=5.0 PYTEST_VERSION=4.0
     - TORNADO_VERSION=5.0.0 PYTEST_VERSION=3.6
     - TORNADO_VERSION=5.0.0 PYTEST_VERSION=4.0.0
@@ -27,6 +29,11 @@ matrix:
     # Pytest 4.0.0 requires a version of attrs that does not work with Python 3.8.
     - python: 3.8
       env: TORNADO_VERSION=5.0.0 PYTEST_VERSION=4.0.0
+    # pytest 5 requires Python 3
+    - python: 2.7
+      env: TORNADO_VERSION=6.0 PYTEST_VERSION=5.2
+    - python: 2.7
+      env: TORNADO_VERSION=5.0 PYTEST_VERSION=5.2
 script:
     - python test/create_cert.py --cert test/testcert.pem
     - coverage run --branch --source pytest_tornado.plugin -m pytest --strict
