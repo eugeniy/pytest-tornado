@@ -6,6 +6,7 @@ python:
     - 3.5
     - 3.6
     - 3.7
+    - 3.8
 env:
     - TORNADO_VERSION=6.0 PYTEST_VERSION=5.2
     - TORNADO_VERSION=6.0 PYTEST_VERSION=4.3
@@ -16,7 +17,7 @@ env:
     - TORNADO_VERSION=4.3.0 PYTEST_VERSION=3.6
     - TORNADO_VERSION=4.1.0 PYTEST_VERSION=3.6.4
 install:
-    - pip install -q tornado~=$TORNADO_VERSION pytest~=$PYTEST_VERSION
+    - pip install tornado~=$TORNADO_VERSION pytest~=$PYTEST_VERSION
     - pip install PyOpenSSL  # used to create a cert for testing
     - python setup.py install
     - pip install coverage coveralls
@@ -25,6 +26,9 @@ matrix:
     # Tornado 6 only supports Python >= 3.5
     - python: 2.7
       env: TORNADO_VERSION=6.0 PYTEST_VERSION=4.3
+    # Pytest 4.0.0 requires a version of attrs that does not work with Python 3.8.
+    - python: 3.8
+      env: TORNADO_VERSION=5.0.0 PYTEST_VERSION=4.0.0
     # pytest 5 requires Python 3
     - python: 2.7
       env: TORNADO_VERSION=6.0 PYTEST_VERSION=5.2
