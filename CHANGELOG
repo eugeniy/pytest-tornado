@@ -1,5 +1,9 @@
 # Unreleased
 
+# 0.8.1
+
+* Fixed deprecation warning for pytest >= 5.4
+
 # 0.8.0
 
 * Added support for HTTPS testing (#50)
