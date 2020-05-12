@@ -3,6 +3,7 @@ import sys
 import types
 import inspect
 import datetime
+import pkg_resources
 import pytest
 import tornado
 import tornado.gen
@@ -14,6 +15,8 @@ if sys.version_info[:2] >= (3, 5):
     iscoroutinefunction = inspect.iscoroutinefunction
 else:
     iscoroutinefunction = lambda f: False
+
+_PYTEST_VERSION = pkg_resources.parse_version(pytest.__version__)
 
 
 def _get_async_test_timeout():
@@ -67,7 +70,10 @@ def _timeout(item):
 @pytest.mark.tryfirst
 def pytest_pycollect_makeitem(collector, name, obj):
     if collector.funcnamefilter(name) and inspect.isgeneratorfunction(obj):
-        item = pytest.Function(name, parent=collector)
+        if _PYTEST_VERSION >= pkg_resources.parse_version("5.4.0"):
+            item = pytest.Function.from_parent(collector, name=name)
+        else:
+            item = pytest.Function(name, parent=collector)
         if 'gen_test' in item.keywords:
             return list(collector._genfunctions(name, obj))
 
