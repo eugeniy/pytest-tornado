@@ -21,7 +21,14 @@ install:
     - pip install PyOpenSSL  # used to create a cert for testing
     - python setup.py install
     - pip install coverage coveralls
-matrix:
+script:
+    - python test/create_cert.py --cert test/testcert.pem
+    - coverage run --branch --source pytest_tornado.plugin -m pytest --strict
+    - coverage report -m
+after_success:
+    - coveralls
+
+jobs:
   exclude:
     # Tornado 6 only supports Python >= 3.5
     - python: 2.7
@@ -34,14 +41,6 @@ matrix:
       env: TORNADO_VERSION=6.0 PYTEST_VERSION=5.2
     - python: 2.7
       env: TORNADO_VERSION=5.0 PYTEST_VERSION=5.2
-script:
-    - python test/create_cert.py --cert test/testcert.pem
-    - coverage run --branch --source pytest_tornado.plugin -m pytest --strict
-    - coverage report -m
-after_success:
-    - coveralls
-
-jobs:
   include:
     - stage: deploy
       python: 3.7
